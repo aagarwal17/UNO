@@ -11,6 +11,7 @@ import java.util.Collections;
 // organization may be undesirable
 public class UnoCard 
 {
+	
 	public enum Color { RED, YELLOW, BLUE, GREEN, WILD }
 	public enum Face  { ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, 
 					    EIGHT, NINE, SKIP, REVERSE, DRAW2, BLANK, DRAW4 }
@@ -44,70 +45,55 @@ public class UnoCard
 		return command;
 	}
 }
-
-public class CardPool
+/**
+public class UnoCard
 {
-	ArrayList< UnoCard > deck = new ArrayList< UnoCard >;
-	ArrayList< UnoCard > discard = new ArrayList< UnoCard >;
-	ArrayList< UnoCard > hand = new ArrayList< UnoCard >;
-	
-	private int size = 108;
-	
-	public void generateDeck()
-	{	
-		private int standardColors = 4;
-		private int colorCounter = 1;
+	enum Color
+	{
+		Red, Blue, Green, Yellow, Wild;
 		
-		private int standardFaces = 13;
-		private int faceCounter = 1;
-		
-		for( UnoCard.Color color : UnoCard.Color.values() )
+		private static final Color [] colors = Color.values();
+		public static Color getColor(int i)
 		{
-			if( colorCounter == standardColors )
-				break;
-			else {
-				deck.add( UnoCard(color, UnoCard.Face.ZERO) )
-				
-				for( UnoCard.Face face : UnoCard.Face.values() ) {
-					if( faceCounter == standardFaces )
-						break;
-					else
-						deck.add( UnoCard(color, face) );
-				}
-			}
+			return Color.colors[i];
 		}
 		
-		for( int i = 0; i < 4; i++ )
-			deck.add( UnoCard(UnoCard.Color.WILD, UnoCard.Face.BLANK) );
-			
-		for( int i = 0; i < 4; i++ )
-			deck.add( UnoCard(UnoCard.Color.WILD, UnoCard.Face.DRAW4) );
-		
-		shuffleDeck();
-		
 	}
-
-	public void shuffleDeck()
+	
+	enum Value
 	{
-		int random = 0;
+		Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, DrawTwo, Skip, Reverse, Wild, Wild_Four;
 		
-		for(int i = 0; i < size; i++)
+		private static final Value [] values = Value.values();
+		public static Value getValue(int i)
 		{
-			random = (int)(Math.random() * size);
-			
-			Collections.swap(deck, i, random);
+			return Value.values[i];
 		}
-	}
-	
-	public void generateHand()
-	{
 		
 	}
 	
-	public void draw()
+	private final Color color;
+	private final Value value;
+	
+	public UnoCard(final Color color, final Value value)
 	{
-		
+		this.color = color;
+		this.value = value;
 	}
 	
+	public Color getColor()
+	{
+		return this.color;
+	}
 	
+	public Value getValue()
+	{
+		return this.value;
+	}
+	
+	public String toString()
+	{
+		return color + "_" + value;
+	}
 }
+**/
