@@ -57,13 +57,15 @@ public class CardPool
 		}
 	}
 	
-	public void generateHand()
+	public void generateHand() //Will generate a hand of size 7, from the "first" card in deck
 	{
-		
+            for(int i = 0; i < 6; i++){
+                hand.add(deck.get(i));
+            }
 	}
 	
-	public void draw()
+	public void draw() //Gets the "top" card in deck and adds to the hand
 	{
-		
+            hand.add(deck.get(0)); 
 	}
 }
