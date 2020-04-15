@@ -1,3 +1,7 @@
+import java.util.Random;
+
+import javax.swing.ImageIcon;
+
 //Arun Agarwal Deck Class
 //this is another version of the Carpool class I think, I made this because it makes more sense to me.
 public class UnoDeck 
@@ -40,5 +44,75 @@ public class UnoDeck
 			}
 			
 		}
+	}
+	
+	//replaces the deck with an arraylist of UnoCards (the stockpile)
+	public void replaceDeckWith(ArrayList<UnoCard> cards)
+	{
+		this.cards = cards.toArray(new UnoCard[cards.size()]);
+		this.cardsInDeck = this.cards.length;
+	}
+	
+	//
+	public boolean isEmpty()
+	{
+		return cardsInDeck == 0;
+	}
+	
+	public void shuffle()
+	{
+		int m = cards.length;
+		Random random = new Random();
+		
+		//get a random index of the array past the current index
+		//the argument is an exclusive bound
+		//swap the random elemeent with the present element
+		for (int i = 0; i < cards.length; i++)
+		{
+			int randomValue = i + random.nextInt(m - 1);
+			Uno randomCard = cards[randomValue];
+			cards[randomValue] = cards[i];
+			cards[i] = randomCard;
+		}
+	}
+	
+	public UnoCard drawCard() throws IllegalArgumentException
+	{
+		if (isEmpty())
+		{
+			throw new IllegalArgumentException("Cannot draw a card sicne there are no cards in the deck.");
+		}
+		return cards[cardsInDeck];
+	}
+	
+	public ImageIcon drawCardImage() throws IllegalArgumentException
+	{
+		if(isEmpty())
+		{
+			throw new IllegalArgumentException("Cannot draw a card since the deck is empty.");
+		}
+		return new ImageIcon(cards[cardsInDeck].toString() + ".png");
+	}
+	
+	public UnoCard[] drawCard (int m)
+	{
+		if (m < 0)
+		{
+			throw new IllegalArgumentException("must draw positive cards but tried to draw " + m + " cards.");
+		}
+		
+		if (m > cardsInDeck)
+		{
+			throw new IllegalArgumentException("Cannot draw " + m + " cards since there are only " + cardsInDeck + " cards.");
+		}
+		
+		UnoCard[] ret = new UnoCard[m];
+		
+		for (int i = 0; i < m; i++)
+		{
+			ret[i] = cards[cardsInDeck];
+		}
+		
+		return ret;
 	}
 }
