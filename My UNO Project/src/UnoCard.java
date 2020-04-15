@@ -1,14 +1,6 @@
-import java.util.ArrayList;
-import java.lang.Math;
-import java.util.Collections;
+
 //UNO Card Class for Final Project
 
-// John 4/27, added getters/setters and deck methods
-// for some reason am unable to see eclipse errors, so 
-// I can't actually tell if what I wrote works or not
-// Also want to add CardPool class but again am unable to
-// and also unable to make pull requests still, so
-// organization may be undesirable
 public class UnoCard 
 {
 	
@@ -35,7 +27,7 @@ public class UnoCard
 		return hue;
 	}
 	
-	public void setCommand(Face newFace)
+	public void setFace(Face newFace)
 	{
 		this.command = newFace;
 	}
@@ -43,6 +35,24 @@ public class UnoCard
 	public Face getFace()
 	{
 		return command;
+	}
+	
+	public void printCard()
+	{
+		if( this.command == Face.BLANK )
+			System.out.println( hue + "");
+		else
+			System.out.println( hue + " " + command);
+	}
+	
+	//driver (use to test methods)
+	public static void main(String[] args)
+	{
+		UnoCard test1 = new UnoCard(Color.RED, Face.ZERO);
+		UnoCard test2 = new UnoCard(Color.WILD, Face.BLANK);
+		
+		test1.printCard();
+		test2.printCard();
 	}
 }
 /**
