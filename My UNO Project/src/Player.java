@@ -8,4 +8,20 @@ public class Player
         this.name = player_name;
         this.hand = player_hand;
     }
+    
+    public int getHandSize(Player p){
+        return p.hand.size();
+    }
+    
+    public String getPlayerName(Player p){
+        return p.name;
+    }
+    
+    public void setPlayerName(Player p, String newName){
+        p.name = newName;
+    }
+    
+    public ArrayList<UnoCard> getHand(Player p){
+        return p.hand;
+    }
 }

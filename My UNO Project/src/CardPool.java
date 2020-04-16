@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collections;
-
 public class CardPool
 {
 	ArrayList< UnoCard > deck = new ArrayList< UnoCard >();
@@ -148,20 +147,33 @@ public class CardPool
 		//if the card is playable, put it on the top of the discard pile and remove it from the hand
 		if( cardIsPlayable( card ) )
 		{
+                    if(card.isWild()){
+                        //add code to set wild temporary color >> card.setTemp()
+                    }
 			discard.add( 0, card );
 			hand.remove( handIndex );
 		}
 		//otherwise, indicate that the card is unplayable (temporary, will change when integrating UI)
 		else
 			System.out.println("That card is unplayable");
-	}
+        }
 	
-	//This is currently a stub
 	public boolean cardIsPlayable( UnoCard card )
 	{
-		return true;
-	}
+            if(discard.get(0).getColor() == card.getColor()) //Checks if colors match on new card and most recent card played 
+            {
+                return true;
+            }else if(discard.get(0).getFace() == card.getFace()) //Checks face values 
+            {
+                return true;
+            }else if(discard.get(0).isWild() && (discard.get(0).getTemp()== card.getColor()))
+                //Checks if wild card and if temporary color matches card color
+            {    
+                return true;
+            }else return card.isWild();
+            }
 	
+        
 	//places the top card of the deck in the discard pile at the start of the game
 	public void initializeDiscard()
 	{

@@ -10,7 +10,8 @@ public class UnoCard
 
 	Color hue;
 	Face command;
-	
+	Color tempColor; //Temporary chosen color for wild
+        
 	public UnoCard( Color newColor, Face newFace )
 	{
 		this.hue = newColor;
@@ -27,6 +28,17 @@ public class UnoCard
 		return hue;
 	}
 	
+        public Color getTemp() //Gets temporary wild color
+        {
+            return tempColor;
+        }
+        
+        public void setTemp(Color newColor) //Sets temporary wild color when a wild card is played
+        {
+            this.tempColor = newColor;
+        }
+        
+        
 	public void setFace(Face newFace)
 	{
 		this.command = newFace;
@@ -37,6 +49,11 @@ public class UnoCard
 		return command;
 	}
 	
+        public boolean isWild() //Checks if the card is a wild card
+        {
+            return this.command == Face.BLANK;
+        }
+        
 	public void printCard()
 	{
 		if( this.command == Face.BLANK )
