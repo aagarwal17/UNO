@@ -172,7 +172,7 @@ public class TextGame {
 		return false;
 	}
 	
-	//returns true if a player has run out of cards
+	//returns true if a player has exhausted all of their cards
 	public boolean gameOver()
 	{
 		boolean flag = false;
