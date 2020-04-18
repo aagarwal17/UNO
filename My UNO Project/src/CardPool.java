@@ -97,10 +97,17 @@ public class CardPool
 		}
 	}
 	
-	public void generateHand() //Will generate a hand of size 7, from the "first" card in deck
-	{                          // 4/14 John: subtracted card from deck 
+	//Will generate a hand of size 7, from the "first" card in deck
+	//I (John) changed this to take an ArrayList in as a parameter to have it
+	//work with any individual player
+	public void generateHand(ArrayList<UnoCard> playerHand) 
+	{                         
+		
+		//clear any existing hand (added to streamline)
+		playerHand.clear();
+		
             for(int i = 0; i < 7; i++){
-                hand.add(deck.get(0));
+                playerHand.add(deck.get(0));
                 deck.remove(0);  
                 //the reason I (John) changed it to adding/removing the 0'th element is because
                 //it makes sense to treat any card piles as stacks as we only interact with the top element
@@ -124,8 +131,9 @@ public class CardPool
 		}
 	}
 	
-	public void draw() //Gets the "top" card in deck and adds to the hand
-	{                  // 4/14 John: subtracted from deck, added 0 cards in deck contingency
+	//Adds the top card of the deck to an ArrayList past in
+	public void draw( ArrayList<UnoCard> playerHand) 
+	{                  
 		
 		//if the deck is empty, shuffle the discard pile into the deck barring the top card of discard
 		if( deck.size() == 0 )
@@ -134,15 +142,15 @@ public class CardPool
 			shuffleDiscard();
 		}
 		
-        hand.add(deck.get(0)); 
+        playerHand.add(deck.get(0)); 
         deck.remove(0);
 	}
 	
 	//plays the card based on the number input by the user (temporary, later on button press)
-	public void playCard( int handIndex )
+	public void playCard( int handIndex, ArrayList<UnoCard> playerHand )
 	{
 		//initialize the desired card from the hand
-		UnoCard card = hand.get( handIndex );
+		UnoCard card = playerHand.get( handIndex );
 		
 		//if the card is playable, put it on the top of the discard pile and remove it from the hand
 		if( cardIsPlayable( card ) )
@@ -151,13 +159,13 @@ public class CardPool
                         //add code to set wild temporary color >> card.setTemp()
                     }
 			discard.add( 0, card );
-			hand.remove( handIndex );
+			playerHand.remove( handIndex );
 		}
 		//otherwise, indicate that the card is unplayable (temporary, will change when integrating UI)
 		else
 			System.out.println("That card is unplayable");
         }
-	
+/*	
 	public boolean cardIsPlayable( UnoCard card )
 	{
             if(discard.get(0).getColor() == card.getColor()) //Checks if colors match on new card and most recent card played 
@@ -171,8 +179,13 @@ public class CardPool
             {    
                 return true;
             }else return card.isWild();
-            }
-	
+    }
+*/
+	//version of the function for purely testing purposes
+	public boolean cardIsPlayable( UnoCard card )
+	{
+            return true;
+    }
         
 	//places the top card of the deck in the discard pile at the start of the game
 	public void initializeDiscard()
@@ -241,7 +254,7 @@ public class CardPool
 		test1.shuffleDeck();
 		test1.printDeck();
 		System.out.println("\n\n\n\n\n\n");
-		test1.generateHand();
+		test1.generateHand(test1.hand);
 		test1.printHand();
 		System.out.println("\n\n\n\n\n\n");
 		test1.initializeDiscard();
@@ -254,7 +267,7 @@ public class CardPool
 		int size = test1.hand.size();
 		for( int i = 0; i < size; i++ )
 		{
-			test1.playCard(0);
+			test1.playCard(0, test1.hand);
 		}
 		test1.printHand();
 		System.out.println("\n\n\n\n\n\n");
@@ -262,7 +275,7 @@ public class CardPool
 		System.out.println("\n\n\n\n\n");
 		test1.printDiscard();
 		System.out.println("\n\n\n\n\n\n");
-		
+	/*	
 		//nuke the deck and see if the draw method's contingency works
 		test1.deck.clear();
 		test1.draw();
@@ -271,7 +284,7 @@ public class CardPool
 		test1.printDiscard();
 		System.out.println("\n\n\n\n\n\n");
 		test1.printDeck();
-		
+	*/	
 		//as of 4/14, these all work-John
 	}
 }
