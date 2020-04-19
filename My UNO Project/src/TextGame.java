@@ -20,6 +20,7 @@ public class TextGame {
 	{
 		cards.generateDeck();
 		cards.initializeDiscard();
+                lastPlayed = cards.discard.get(0); //Initializes lastPlayed
 	}
 	
 	//sets the amount of players, their names, their decks, and the current player
@@ -41,12 +42,15 @@ public class TextGame {
 	}
 	
 	//gets the amount of players from the user
-	//low priority: add protection against integers <= 0
+	//protection against integers <= 0 and no more than 10 players bc of too few cards
 	public void getPlayerCount()
 	{
-		System.out.print("How many people are playing? ");
-		playerCount = keyboard.nextInt();
-		System.out.println("\n\n");
+                playerCount = 0;
+                while(playerCount == 0 | playerCount > 10){
+                    System.out.print("How many people are playing? (Enter from 1 to 10) ");
+                    playerCount = keyboard.nextInt();
+                    System.out.println("\n\n");
+                }
 	}
 	
 	//allows the current player to play a card, or draw if they do not have 
@@ -54,7 +58,8 @@ public class TextGame {
 	public void playerTurn()
 	{
 		currentPlayer.printHand();
-		
+		System.out.print("Current top card is: " + lastPlayed.getColor()); //Shows the current top card
+                System.out.print(" " + cards.getTop().getFace());
 		//if no card is playable, draw a card
 		if(noCardsPlayable()) {
 			System.out.println("\n\nNone of " + currentPlayer.name + "'s cards are playable. He/she now draws a card.");
@@ -153,25 +158,44 @@ public class TextGame {
 		if(lastPlayed.getFace() == UnoCard.Face.REVERSE)
 			this.reversed = !this.reversed;
 	}
-	
-	//stub
-	public boolean drawPlayed()
+
+	public boolean drawPlayed() //Tests if lastPlayed is a draw face
 	{
-		return false;
+            return lastPlayed.getFace() == UnoCard.Face.DRAW2 | lastPlayed.getFace() == UnoCard.Face.DRAW4;
 	}
 	
-	//stub
-	public boolean wildPlayed()
+	public boolean wildPlayed() //Tests if lastPlayed is a wild
 	{
-		return false;
+		return lastPlayed.getColor() == UnoCard.Color.WILD;
 	}
 	
 	//stub
 	public boolean noCardsPlayable()
 	{
-		return false;
-	}
-	
+            for(int i = 0; i < currentPlayer.hand.size(); i++){
+                if(cardIsPlayable(currentPlayer.hand.get(i))){
+                    return false;
+                }
+                }
+            return true;
+        }
+        
+        public boolean cardIsPlayable( UnoCard card )
+	{
+            if(lastPlayed.getColor() == card.getColor()) //Checks if colors match on new card and most recent card played 
+            {
+                return true;
+            }else if(lastPlayed.getFace() == card.getFace()) //Checks face values 
+            {
+                return true;
+            }else if(lastPlayed.isWild() && (lastPlayed.getTemp()== card.getColor()))
+                //Checks if wild card and if temporary color matches card color
+            {    
+                return true;
+            }else return card.isWild();
+        
+        }
+        
 	//returns true if a player has exhausted all of their cards
 	public boolean gameOver()
 	{

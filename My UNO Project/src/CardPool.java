@@ -193,7 +193,7 @@ public class CardPool
 		//initializes the top card of the deck
 		UnoCard firstDiscard = deck.get(0);
 		
-		//add the card to the discard pile and remove it from te deck
+		//add the card to the discard pile and remove it from the deck
 		discard.add( firstDiscard );
 		deck.remove(0);
 	}
