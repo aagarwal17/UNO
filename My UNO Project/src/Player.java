@@ -1,5 +1,5 @@
-//UNO Final Project Player Class 
-import java.util.ArrayList;
+package src;
+ import java.util.ArrayList;
 public class Player 
 {
     public String name;

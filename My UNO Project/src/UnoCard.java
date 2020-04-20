@@ -1,8 +1,14 @@
+package src;
+
 
 //UNO Card Class for Final Project
 
 public class UnoCard 
 {
+
+    Color setTemp() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 	
 	public enum Color { RED, YELLOW, BLUE, GREEN, WILD }
 	public enum Face  { ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, 
@@ -51,10 +57,10 @@ public class UnoCard
 	
         public boolean isWild() //Checks if the card is a wild card
         {
-            return this.command == Face.BLANK;
+            return this.hue == Color.WILD;
         }
         
-	public void printCard()
+    public void printCard()
 	{
 		if( this.command == Face.BLANK )
 			System.out.println( hue + "");

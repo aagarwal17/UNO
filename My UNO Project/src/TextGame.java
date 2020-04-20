@@ -1,3 +1,4 @@
+package src;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -59,23 +60,47 @@ public class TextGame {
 	{
 		currentPlayer.printHand();
 		System.out.print("Current top card is: " + lastPlayed.getColor()); //Shows the current top card
+                //We will need to add a conditional for wilds when we build the actual game^
                 System.out.print(" " + cards.getTop().getFace());
 		//if no card is playable, draw a card
 		if(noCardsPlayable()) {
-			System.out.println("\n\nNone of " + currentPlayer.name + "'s cards are playable. He/she now draws a card.");
-			cards.draw(currentPlayer.hand);
-			
-			int drawnIndex = currentPlayer.getHandSize() - 1;
-			UnoCard drawn = currentPlayer.hand.get( drawnIndex );
-			
-			//if the drawn card is playable, play it and update the last card played
-			if(cards.cardIsPlayable(drawn)) {
-				cards.playCard(drawnIndex, currentPlayer.hand);
+                    System.out.println("\n\nNone of " + currentPlayer.name + "'s cards are playable. He/she now draws a card.");
+                    cards.draw(currentPlayer.hand);
+                    int drawnIndex = currentPlayer.getHandSize() - 1;
+                    UnoCard drawn = currentPlayer.hand.get( drawnIndex );
+                    //if the drawn card is playable, play it and update the last card played
+                    //if the drawn card is not playable, print message and change turns
+                    if(noCardsPlayable()) {
+			System.out.println("The card you drew is not playable, so it is the next players turn.");
+                            if(!reversed){
+                                playerIndex++;
+				checkPlayerIndex();
+                            }else{
+                                playerIndex--;
+                                checkPlayerIndex();
+                            }
+                    }else{
+                            cards.playCard(drawnIndex, currentPlayer.hand);
 				lastPlayed = drawn;
 				System.out.println("The card you drew is playable, so you play it");
+                                if (wildPlayed()){ //Sets the temporary color for a wild
+                                    System.out.print("\n\nWhich color do you want to use " +currentPlayer.name + "? >");
+                                    System.out.print("Type 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow");
+                                    //This will be a button action in the real GUI
+                                    //Lets the user choose which color for the wild
+                                    switch(keyboard.nextInt()){
+                                        case 1 :
+                                            lastPlayed.setTemp(UnoCard.Color.RED);
+                                        case 2 :
+                                            lastPlayed.setTemp(UnoCard.Color.BLUE);
+                                        case 3 :
+                                            lastPlayed.setTemp(UnoCard.Color.GREEN);
+                                        case 4 :
+                                            lastPlayed.setTemp(UnoCard.Color.YELLOW);
+                                    }
 			}
-		}
-		
+                        }
+                }
 		else {
 			System.out.print("\n\nWhich card will you play " + currentPlayer.name + "? >");
 			handIndex = keyboard.nextInt() - 1;
@@ -89,6 +114,23 @@ public class TextGame {
 			}
 			
 			lastPlayed = cards.discard.get(0);
+                        if (wildPlayed()){ //Sets the temporary color for a wild
+                            System.out.print("\n\nWhich color do you want to use " +currentPlayer.name + "? >");
+                            System.out.print("Type 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow");
+                            //This will be a button action in the real GUI
+                            //Lets the user choose which color for the wild
+                            switch(keyboard.nextInt()){
+                                case 1 :
+                                    lastPlayed.setTemp(UnoCard.Color.RED);
+                                case 2 :
+                                    lastPlayed.setTemp(UnoCard.Color.BLUE);
+                                case 3 :
+                                    lastPlayed.setTemp(UnoCard.Color.GREEN);
+                                case 4 :
+                                    lastPlayed.setTemp(UnoCard.Color.YELLOW);
+                        }
+                            
+                        }
 		}
 	}
 
@@ -120,16 +162,15 @@ public class TextGame {
 				checkPlayerIndex();
 				playerIndex--;
 				checkPlayerIndex();
-			}
 			//otherwise, only do so once
-			else {
+                        }else {
 				playerIndex--;
 				checkPlayerIndex();
 			}
-		}
-		
+	
+                }
 		currentPlayer = players.get(playerIndex);
-	}
+        }
 	
 	//checks if the player number is out of bounds, if it is, resets it based on
 	//whether the order is reversed or not
@@ -141,14 +182,21 @@ public class TextGame {
 			playerIndex = playerCount - 1;
 	}
 	
-	//returns true if the last card played is a skip
+	//returns true if the last card played is a skip (also checking for draw 2 or draw bc the turn is also skipped)
 	public boolean skipPlayed()
 	{
 		boolean flag = false;
 		
-		if(lastPlayed.getFace() == UnoCard.Face.SKIP)
-			flag = true;
-		
+		if(lastPlayed.getFace() == UnoCard.Face.SKIP ){
+                    flag = true;
+                }else if(drawPlayed()){ //Adds cards to hand if a draw card was chosen
+                    if(wildPlayed()){ //If draw 4 is played
+                        for(int i = 0; i <4; i++){ cards.draw(currentPlayer.hand);}
+                    }else if(lastPlayed.getFace() == UnoCard.Face.DRAW2){ //If draw 2 is played
+                        for(int i = 0; i <2; i++){ cards.draw(currentPlayer.hand);}
+                    }
+                    flag = true;
+                }
 		return flag;
 	}
 	
@@ -176,7 +224,7 @@ public class TextGame {
                 if(cardIsPlayable(currentPlayer.hand.get(i))){
                     return false;
                 }
-                }
+            }
             return true;
         }
         
@@ -263,3 +311,34 @@ public class TextGame {
 	*/	
 	}
 }
+
+
+/*if(cards.cardIsPlayable(drawn)) {
+				cards.playCard(drawnIndex, currentPlayer.hand);
+				lastPlayed = drawn;
+				System.out.println("The card you drew is playable, so you play it");
+                                if (wildPlayed()){ //Sets the temporary color for a wild
+                                    System.out.print("\n\nWhich color do you want to use " +currentPlayer.name + "? >");
+                                    System.out.print("Type 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow");
+                                    //This will be a button action in the real GUI
+                                    switch(keyboard.nextInt()){
+                                        case 1 :
+                                            lastPlayed.setTemp(UnoCard.Color.RED);
+                                        case 2 :
+                                            lastPlayed.setTemp(UnoCard.Color.BLUE);
+                                        case 3 :
+                                            lastPlayed.setTemp(UnoCard.Color.GREEN);
+                                        case 4 :
+                                            lastPlayed.setTemp(UnoCard.Color.YELLOW);
+                                    }
+			}
+                    }else{
+                            System.out.println("The card you drew is not playable, so it is the next players turn.");
+                            if(!reversed){
+                                playerIndex++;
+				checkPlayerIndex();
+                            }else{
+                                playerIndex--;
+                                checkPlayerIndex();
+                            }
+                        }*/
