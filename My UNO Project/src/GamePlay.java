@@ -1,54 +1,78 @@
 package src;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.imageio.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
-import javax.swing.*;
 public class GamePlay extends Frame implements ActionListener{
-        final JFrame start = new JFrame("Uno Game"); //Creates frame for uno game
+    ArrayList<Player> players = new ArrayList<Player>();
+    CardPool cards = new CardPool();
+    Player currentPlayer;
+    Player winner;
+    UnoCard lastPlayed;
+    Scanner keyboard = new Scanner(System.in);
+	
+    private int playerCount;
+    private int playerIndex = 0;
+    private int handIndex;
+    private boolean reversed;
         
-        ArrayList<Player> players = new ArrayList<>();
-	CardPool cards = new CardPool();
-	Player currentPlayer;
-	Player winner;
-	UnoCard lastPlayed;
-	Scanner keyboard = new Scanner(System.in);
-	
-	private int playerCount;
-	private int playerIndex = 0;
-	private int handIndex;
-	private boolean reversed;
-	
-	//self explanatory
-	public void startGame()
+    public GamePlay(){
+        JFrame gamePanel = new JFrame("UNO Game");
+        JPanel startPanel = new JPanel();
+        JTextArea playersText = new JTextArea("How many players?");
+        playersText.setEditable(false);
+        
+        JTextArea playersCountText;
+        
+        gamePanel.setSize(500,500);
+        startPanel.add(playersText, BorderLayout.WEST);
+        gamePanel.add(startPanel,BorderLayout.NORTH);
+        gamePanel.setVisible(true);
+        gamePanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        
+        TextGame game = new TextGame();
+	game.startGame();
+	game.initializePlayers();
+	while(!game.gameOver()) {
+            game.playerTurn();
+            game.uno();
+            game.nextPlayer();
+	}
+	System.out.println("\n\n*** Congratulations " + game.winner.name + "! You won! ***");
+    }
+    public void startGame()
 	{
 		cards.generateDeck();
 		cards.initializeDiscard();
                 lastPlayed = cards.discard.get(0); //Initializes lastPlayed
 	}
 	
-	//sets the amount of players, their names, their decks, and the current player using text field
-        //Lets user add up to 10 players, breaks if no other users are added (not finished)
+	//sets the amount of players, their names, their decks, and the current player
+	//(set as player 1)  low priority: we can add a name prompt here at a later date
 	public void initializePlayers()
 	{
-            ArrayList<UnoCard> temporary = new ArrayList<>();
-            JTextField t1 = new JTextField("Enter Up to Ten Players");
-            for(int i = 0; i <10; i++){
-                JTextField names = new JTextField();
-                names.setEditable(true);
-                cards.generateHand(temporary);
-                players.add(new Player(names.getText(),temporary));
-            }
-            currentPlayer = players.get(0);
-            getPlayerCount();
+		getPlayerCount();
+		
+		//populate the array with players by getting hands from the deck and
+		//naming each player by number
+		for(int i = 0; i < playerCount; i++)
+		{
+			ArrayList<UnoCard> temporary = new ArrayList<UnoCard>();
+			cards.generateHand(temporary);
+			players.add( new Player(i + 1, temporary));
+		}
+		//initialize the current player as player 1
+		currentPlayer = players.get(0);
 	}
 	
 	//gets the amount of players from the user
 	//protection against integers <= 0 and no more than 10 players bc of too few cards
 	public void getPlayerCount()
 	{
-            
                 playerCount = 0;
                 while(playerCount == 0 | playerCount > 10){
                     System.out.print("How many people are playing? (Enter from 1 to 10) ");
@@ -63,7 +87,6 @@ public class GamePlay extends Frame implements ActionListener{
 	{
 		currentPlayer.printHand();
 		System.out.print("Current top card is: " + lastPlayed.getColor()); //Shows the current top card
-                //We will need to add a conditional for wilds when we build the actual game^
                 System.out.print(" " + cards.getTop().getFace());
 		//if no card is playable, draw a card
 		if(noCardsPlayable()) {
@@ -74,7 +97,7 @@ public class GamePlay extends Frame implements ActionListener{
                     //if the drawn card is playable, play it and update the last card played
                     //if the drawn card is not playable, print message and change turns
                     if(noCardsPlayable()) {
-			System.out.println("The card you drew is not playable, so it is the next players turn.");
+			System.out.println("The card they drew is not playable, they draw again.");
                             if(!reversed){
                                 playerIndex++;
 				checkPlayerIndex();
@@ -82,58 +105,80 @@ public class GamePlay extends Frame implements ActionListener{
                                 playerIndex--;
                                 checkPlayerIndex();
                             }
+                        currentPlayer = players.get(playerIndex);
                     }else{
-                            cards.playCard(drawnIndex, currentPlayer.hand);
-				lastPlayed = drawn;
-				System.out.println("The card you drew is playable, so you play it");
-                                if (wildPlayed()){ //Sets the temporary color for a wild
-                                    System.out.print("\n\nWhich color do you want to use " +currentPlayer.name + "? >");
-                                    System.out.print("Type 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow");
-                                    //This will be a button action in the real GUI
-                                    //Lets the user choose which color for the wild
-                                    switch(keyboard.nextInt()){
-                                        case 1 :
-                                            lastPlayed.setTemp(UnoCard.Color.RED);
-                                        case 2 :
-                                            lastPlayed.setTemp(UnoCard.Color.BLUE);
-                                        case 3 :
-                                            lastPlayed.setTemp(UnoCard.Color.GREEN);
-                                        case 4 :
-                                            lastPlayed.setTemp(UnoCard.Color.YELLOW);
-                                    }
-			}
-                        }
-                }
-		else {
-			System.out.print("\n\nWhich card will you play " + currentPlayer.name + "? >");
-			handIndex = keyboard.nextInt() - 1;
-			boolean cardPlayed = false;
-			int handSize = currentPlayer.getHandSize();
-			
-			while(!cardPlayed) {
-				cards.playCard(handIndex, currentPlayer.hand);
-				if(currentPlayer.getHandSize() < handSize)
-					cardPlayed = true;
-			}
-			
-			lastPlayed = cards.discard.get(0);
+                        cards.playCard(drawnIndex, currentPlayer.hand);
+                        lastPlayed = drawn;
+			System.out.println("The card you drew is playable, so you play it");
                         if (wildPlayed()){ //Sets the temporary color for a wild
                             System.out.print("\n\nWhich color do you want to use " +currentPlayer.name + "? >");
-                            System.out.print("Type 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow");
+                            System.out.print("\n\nType 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow >");
                             //This will be a button action in the real GUI
                             //Lets the user choose which color for the wild
                             switch(keyboard.nextInt()){
                                 case 1 :
                                     lastPlayed.setTemp(UnoCard.Color.RED);
+                                    System.out.print("\n\nTemporary WILD color is Red.");
+                                    break;
                                 case 2 :
                                     lastPlayed.setTemp(UnoCard.Color.BLUE);
+                                    System.out.print("\n\nTemporary WILD color is Blue.");
+                                    break;
                                 case 3 :
                                     lastPlayed.setTemp(UnoCard.Color.GREEN);
+                                    System.out.print("\n\nTemporary WILD color is Green.");
+                                    break;
                                 case 4 :
                                     lastPlayed.setTemp(UnoCard.Color.YELLOW);
+                                    System.out.print("\n\nTemporary WILD color is Yellow.");
+                                    break;
+                            }
+                        }   
+                    }
+                }
+		else {
+                    boolean cardPlayed = false;
+                    int handSize = currentPlayer.getHandSize();
+                    lastPlayed = cards.discard.get(0);
+                    System.out.print("\n\nWhich card will you play " + currentPlayer.name + "? >");
+                    handIndex = keyboard.nextInt() - 1;
+                     
+                    while(!cardIsPlayable(currentPlayer.getCardAt(handIndex))){
+                        System.out.print("\n\nThis card isn't playable. Try a new card >");
+                        handIndex = keyboard.nextInt() - 1;
+                    }
+                    
+                    while(!cardPlayed) {
+			cards.playCard(handIndex, currentPlayer.hand);
+			if(currentPlayer.getHandSize() < handSize)
+                            cardPlayed = true;
+                    }
+                    
+                    lastPlayed = cards.discard.get(0);
+                    if (wildPlayed()){ //Sets the temporary color for a wild
+                        System.out.print("\n\nWhich color do you want to use " +currentPlayer.name + "? >");
+                        System.out.print("\n\nType 1 for Red, 2 for Blue, 3 for Green, 4 for Yellow >");
+                        //This will be a button action in the real GUI
+                        //Lets the user choose which color for the wild
+                        switch(keyboard.nextInt()){
+                            case 1 :
+                                lastPlayed.setTemp(UnoCard.Color.RED);
+                                System.out.print("\n\nTemporary WILD color is Red.");
+                                break;
+                            case 2 :
+                                lastPlayed.setTemp(UnoCard.Color.BLUE);
+                                System.out.print("\n\nTemporary WILD color is Blue.");
+                                break;
+                            case 3 :
+                                lastPlayed.setTemp(UnoCard.Color.GREEN);
+                                System.out.print("\n\nTemporary WILD color is Green.");
+                                break;
+                            case 4 :
+                                lastPlayed.setTemp(UnoCard.Color.YELLOW);
+                                System.out.print("\n\nTemporary WILD color is Yellow.");
+                                break;
                         }
-                            
-                        }
+                    }
 		}
 	}
 
@@ -150,9 +195,23 @@ public class GamePlay extends Frame implements ActionListener{
 				checkPlayerIndex();
 				playerIndex++;
 				checkPlayerIndex();
-			}
-			//otherwise, only do so once
-			else {
+                        //if draws are played, also skip the next player
+			}else if(draw2Played()){
+                            playerIndex++;
+                            checkPlayerIndex();
+                            currentPlayer = players.get(playerIndex);
+                            for(int i = 0; i <2; i++){ cards.draw(currentPlayer.hand);}
+                            playerIndex++;
+                            checkPlayerIndex();
+                        }else if(draw4Played()){
+                            playerIndex++;
+                            checkPlayerIndex();
+                            currentPlayer = players.get(playerIndex);
+                            for(int i = 0; i <4; i++){ cards.draw(currentPlayer.hand);}
+                            playerIndex++;
+                            checkPlayerIndex();
+                        }
+                        else {
 				playerIndex++;
 				checkPlayerIndex();
 			}
@@ -165,7 +224,21 @@ public class GamePlay extends Frame implements ActionListener{
 				checkPlayerIndex();
 				playerIndex--;
 				checkPlayerIndex();
-			//otherwise, only do so once
+			//if draws are played, also skip the next player
+                        }else if(draw2Played()){
+                            playerIndex--;
+                            checkPlayerIndex();
+                            currentPlayer = players.get(playerIndex);
+                            for(int i = 0; i <2; i++){ cards.draw(currentPlayer.hand);}
+                            playerIndex--;
+                            checkPlayerIndex();
+                        }else if(draw4Played()){
+                            playerIndex--;
+                            checkPlayerIndex();
+                            currentPlayer = players.get(playerIndex);
+                            for(int i = 0; i <4; i++){ cards.draw(currentPlayer.hand);}
+                            playerIndex--;
+                            checkPlayerIndex();
                         }else {
 				playerIndex--;
 				checkPlayerIndex();
@@ -192,17 +265,27 @@ public class GamePlay extends Frame implements ActionListener{
 		
 		if(lastPlayed.getFace() == UnoCard.Face.SKIP ){
                     flag = true;
-                }else if(drawPlayed()){ //Adds cards to hand if a draw card was chosen
-                    if(wildPlayed()){ //If draw 4 is played
-                        for(int i = 0; i <4; i++){ cards.draw(currentPlayer.hand);}
-                    }else if(lastPlayed.getFace() == UnoCard.Face.DRAW2){ //If draw 2 is played
-                        for(int i = 0; i <2; i++){ cards.draw(currentPlayer.hand);}
-                    }
-                    flag = true;
                 }
 		return flag;
 	}
 	
+        public boolean draw2Played(){
+            boolean flag = false; 
+            if(lastPlayed.getFace()== UnoCard.Face.DRAW2){
+                flag = true;
+            }
+            return flag;
+        }
+        
+        public boolean draw4Played(){
+            boolean flag = false; 
+            if(lastPlayed.getFace()== UnoCard.Face.DRAW4){
+                flag = true;
+            }
+            return flag;
+        }
+        
+        
 	//returns true if the last card played is a skip
 	public void checkIfReversePlayed()
 	{
@@ -220,7 +303,6 @@ public class GamePlay extends Frame implements ActionListener{
 		return lastPlayed.getColor() == UnoCard.Color.WILD;
 	}
 	
-	//stub
 	public boolean noCardsPlayable()
 	{
             for(int i = 0; i < currentPlayer.hand.size(); i++){
@@ -270,12 +352,26 @@ public class GamePlay extends Frame implements ActionListener{
 		if(currentPlayer.getHandSize() == 1)
 			System.out.println("\n" + currentPlayer.name + " said \"UNO!\"\n");
 	}
-	
+    public static void main(String[] args){
+        new GamePlay();
+    }
 
+    
+    
+    
+    
+    
     
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-}
+    }
+
+
+
+
+
+
+

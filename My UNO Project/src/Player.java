@@ -21,6 +21,10 @@ public class Player
         return hand.size();
     }
     
+    public UnoCard getCardAt(int index){
+        return hand.get(index);
+    }
+    
     //for debugging/text-based purposes
     public void printHand()
     {
@@ -33,6 +37,7 @@ public class Player
     		i++;
     	}
     }
+    
     
     public String getPlayerName(Player p){
         return p.name;
