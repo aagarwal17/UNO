@@ -1,4 +1,4 @@
-package src;
+
 import java.util.ArrayList;
 import java.util.Collections;
 public class CardPool
@@ -202,9 +202,20 @@ public class CardPool
 		//initializes the top card of the deck
 		UnoCard firstDiscard = deck.get(0);
 		
+		//keep shuffling the deck until the top card is not wild
+		if( firstDiscard.getColor() == UnoCard.Color.WILD )
+		{
+			shuffleDeck();
+			initializeDiscard();
+		}
+		
 		//add the card to the discard pile and remove it from the deck
-		discard.add( firstDiscard );
-		deck.remove(0);
+		
+		if( discard.size() == 0 )
+		{
+			discard.add( firstDiscard );
+			deck.remove(0);
+		}
 	}
 	
 	//prints the discard pile (this is mainly for debugging purposes)
